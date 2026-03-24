@@ -40,10 +40,22 @@ alter table public.products enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
 
--- Policies
+-- Policies for public access
 create policy "Public read access to products" on public.products for select using (true);
 create policy "Public insert access to orders" on public.orders for insert with check (true);
 create policy "Public insert access to order_items" on public.order_items for insert with check (true);
+
+-- Policies for admin access (Any authenticated user can manage products)
+create policy "Admin insert access to products" on public.products for insert with check (auth.uid() is not null);
+create policy "Admin update access to products" on public.products for update using (auth.uid() is not null);
+create policy "Admin delete access to products" on public.products for delete using (auth.uid() is not null);
+
+-- Policies to allow auth users to read orders (For complete admin functionality)
+create policy "Admin read access to orders" on public.orders for select using (auth.uid() is not null);
+create policy "Admin read access to order_items" on public.order_items for select using (auth.uid() is not null);
+
+-- Clean table before inserting
+truncate table public.products cascade;
 
 -- Insert Mock Data
 insert into public.products (id, name, description, price, stock, category, image_url) values

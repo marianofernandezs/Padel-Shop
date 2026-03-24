@@ -16,21 +16,18 @@ export const Checkout: React.FC = () => {
 
   const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
     setError(null);
 
-    // Simulate network request
-    setTimeout(() => {
-      const result = checkout();
-      if (result.success) {
-        navigate('/confirmation', { state: { orderId: result.orderId } });
-      } else {
-        setError(result.message || 'Error desconocido');
-        setIsProcessing(false);
-      }
-    }, 1500);
+    const result = await checkout();
+    if (result.success) {
+      navigate('/confirmation', { state: { orderId: result.orderId } });
+    } else {
+      setError(result.message || 'Error desconocido');
+      setIsProcessing(false);
+    }
   };
 
   return (
